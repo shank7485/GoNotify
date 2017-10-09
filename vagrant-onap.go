@@ -52,15 +52,18 @@ func main()  {
 
 		if *createBuildContainerPtr == false &&
 			*createRunContainerPtr == false {
-			funcs.CreateONAPComponent(*createTextPtr)
+			// TODO: Printout the output.
+			go funcs.CreateONAPComponent(*createTextPtr)
 		}
 
 		if *createBuildContainerPtr == true {
-			funcs.CreateONAPcomponent_DockerBuild(*createTextPtr)
+			// TODO: Printout the output.
+			go funcs.CreateONAPcomponent_DockerBuild(*createTextPtr)
 		}
 
 		if *createRunContainerPtr == true {
-			funcs.CreateONAPComponent_DockerRun(*createTextPtr)
+			// TODO: Printout the output.
+			go funcs.CreateONAPComponent_DockerRun(*createTextPtr)
 		}
 
 	}
@@ -71,6 +74,7 @@ func main()  {
 			funcs.PrintInvalid()
 		}
 
-		funcs.DeleteONAPComponent(*deleteTextPtr)
+		// TODO: Printout the output.
+		go funcs.DeleteONAPComponent(*deleteTextPtr)
 	}
 }
