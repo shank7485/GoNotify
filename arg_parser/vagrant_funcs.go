@@ -2,31 +2,46 @@ package arg_parser
 
 import (
 	"fmt"
-	"os/exec"
-	"log"
+	"os"
 )
 
-func CreateONAPComponent(component string)  {
-	// TODO: Need to be run from vagrant-onap directory to find VagrantFile
-	cmd := exec.Command("vagrant", "up", component)
-	stdoutStderr, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%s\n", stdoutStderr)
+
+func CreateONAPComponent(directory string, component string)  {
+	os.Chdir(directory)
+	fmt.Printf("Doing vagrant up %s from directory %s\n", component, directory)
+	VagrantUp(component)
 }
 
-func CreateONAPcomponent_DockerBuild(component string)  {
+func CreateONAPcomponent_DockerBuild(directory string, component string)  {
 	// TODO do vagrant up <component> and do stuff for DockerBuild
 	fmt.Printf("Doing vagrant up with DockerBuild %s\n", component)
 }
 
-func CreateONAPComponent_DockerRun(component string)  {
+func CreateONAPComponent_DockerRun(directory string, component string)  {
 	// TODO do vagrant up <component> and do stuff for DockerRun
 	fmt.Printf("Doing vagrant up with DockerRun %s\n", component)
 }
 
-func DeleteONAPComponent(component string){
-	// TODO do vagrant destroy <component>
-	fmt.Printf("Doing vagrant delete %s\n", component)
+func DeleteONAPComponent(directory string, component string){
+	os.Chdir(directory)
+	fmt.Printf("Doing vagrant destroy %s from directory %s\n", component, directory)
+	VagrantDestroy(component)
+}
+
+func VagrantUp(value string){
+	cmdName := "vagrant"
+	cmdArgs := []string{"up", value}
+
+	fmt.Printf("Running vagrant up %s", value)
+
+	RunShell(cmdName, cmdArgs)
+}
+
+func VagrantDestroy(value string)  {
+	cmdName := "vagrant"
+	cmdArgs := []string{"destroy", value, "-f"}
+
+	fmt.Printf("Running vagrant destroy %s -f", value)
+
+	RunShell(cmdName, cmdArgs)
 }
