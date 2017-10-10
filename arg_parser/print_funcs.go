@@ -3,6 +3,10 @@ package arg_parser
 import (
 	"fmt"
 	"os"
+	"bufio"
+	"os/exec"
+	"os/signal"
+	"syscall"
 )
 
 func PrintInvalid()  {
@@ -16,13 +20,13 @@ func PrintBaseHelp(){
 	fmt.Printf("vagrant-onap help\tHelp\n")
 	fmt.Printf("vagrant-onap list\tList of available Vagrant ONAP components.\n")
 	fmt.Printf(
-		"vagrant-onap create -component=<name>\tCreate component to only clone repos.\n")
+		"vagrant-onap create -d <VagrantFile path> -component=<name>\tCreate component to only clone repos.\n")
 	fmt.Printf(
-		"vagrant-onap create -component=<name> --build\tCreate component by cloning and building containers.\n")
+		"vagrant-onap create -d <VagrantFile path> -component=<name> --build\tCreate component by cloning and building containers.\n")
 	fmt.Printf(
-		"vagrant-onap create -component=<name> --run\tCreate component by cloning, building and running containers.\n")
+		"vagrant-onap create -d <VagrantFile path> -component=<name> --run\tCreate component by cloning, building and running containers.\n")
 	fmt.Printf(
-		"vagrant-onap delete -component=<name>\tDelete component\n")
+		"vagrant-onap delete -d <VagrantFile path> -component=<name>\tDelete component\n")
 }
 
 func PrintAvailableONAPComponents()  {
@@ -31,8 +35,43 @@ func PrintAvailableONAPComponents()  {
 	fmt.Printf("policy\n")
 	fmt.Printf("portal\n")
 	fmt.Printf("vfc\n")
-	fmt.Printf("Example usage: vagrant-onap create -component=sdnc\n")
+	fmt.Printf("Example usage: vagrant-onap create d <VagrantFile path> -component=sdnc\n")
 }
 
+func RunShell(cmdName string, cmdArgs []string){
+	cmd := exec.Command(cmdName, cmdArgs...)
+	cmdReader, err := cmd.StdoutPipe()
 
+	if err!=nil {
+		fmt.Printf("Error creating StdoutPipe for Cmd. Error: %s", err)
+		os.Exit(1)
+	}
 
+	scanner := bufio.NewScanner(cmdReader)
+	go func() {
+		for scanner.Scan() {
+			fmt.Printf("%s\n", scanner.Text())
+		}
+	}()
+
+	err = cmd.Start()
+	if err!=nil {
+		fmt.Printf("Error starting Cmd. Error: %s", err)
+		os.Exit(1)
+	}
+
+	// To handle Control C
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		fmt.Printf("\nStopping.\n")
+		os.Exit(1)
+	}()
+
+	err = cmd.Wait()
+	if err!=nil {
+		fmt.Printf("Error waiting for Cmd. Error: %s", err)
+		os.Exit(1)
+	}
+}

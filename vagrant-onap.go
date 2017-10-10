@@ -23,11 +23,13 @@ func main()  {
 	}
 
 	createCommand := flag.NewFlagSet("create", flag.ExitOnError)
+	createDircPtr := createCommand.String("d", "", "Directory where the Vagrant File is locatied. (Required)")
 	createTextPtr := createCommand.String("component", "", "Component name. (Required)")
 	createBuildContainerPtr := createCommand.Bool("build", false, "Option to build container")
 	createRunContainerPtr := createCommand.Bool("run", false, "Option to run container")
 
 	deleteCommand := flag.NewFlagSet("delete", flag.ExitOnError)
+	deleteDircPtr := deleteCommand.String("d", "", "Directory where the Vagrant File is locatied. (Required)")
 	deleteTextPtr := deleteCommand.String("component", "", "Component name. (Required)")
 
 
@@ -45,36 +47,34 @@ func main()  {
 	}
 
 	if createCommand.Parsed() {
-		if *createTextPtr == "" || services_map[*createTextPtr] == false {
-			fmt.Printf("Service %s not found\n", *createTextPtr)
+		if *createDircPtr == "" || *createTextPtr == "" || services_map[*createTextPtr] == false {
+			fmt.Printf(
+				"Vagrant Directory %s or Service %s not found\n", *createDircPtr, *createTextPtr)
 			funcs.PrintInvalid()
 		}
 
 		if *createBuildContainerPtr == false &&
 			*createRunContainerPtr == false {
-			// TODO: Printout the output.
-			go funcs.CreateONAPComponent(*createTextPtr)
+			funcs.CreateONAPComponent(*createDircPtr, *createTextPtr)
 		}
 
 		if *createBuildContainerPtr == true {
-			// TODO: Printout the output.
-			go funcs.CreateONAPcomponent_DockerBuild(*createTextPtr)
+			funcs.CreateONAPcomponent_DockerBuild(*createDircPtr, *createTextPtr)
 		}
 
 		if *createRunContainerPtr == true {
-			// TODO: Printout the output.
-			go funcs.CreateONAPComponent_DockerRun(*createTextPtr)
+			funcs.CreateONAPComponent_DockerRun(*createDircPtr, *createTextPtr)
 		}
 
 	}
 
 	if deleteCommand.Parsed() {
-		if *deleteTextPtr == "" || services_map[*deleteTextPtr] == false {
-			fmt.Printf("Service %s not found\n", *deleteTextPtr)
+		if *deleteDircPtr == "" || *deleteTextPtr == "" || services_map[*deleteTextPtr] == false {
+			fmt.Printf(
+				"Vagrant Directory %s or Service %s not found\n", *deleteDircPtr, *deleteTextPtr)
 			funcs.PrintInvalid()
 		}
 
-		// TODO: Printout the output.
-		go funcs.DeleteONAPComponent(*deleteTextPtr)
+		funcs.DeleteONAPComponent(*deleteDircPtr, *deleteTextPtr)
 	}
 }
