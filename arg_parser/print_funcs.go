@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"syscall"
+	"bytes"
 )
 
 func PrintInvalid()  {
@@ -38,16 +39,18 @@ func PrintAvailableONAPComponents()  {
 	fmt.Printf("Example usage: vagrant-onap create d <VagrantFile path> -component=sdnc\n")
 }
 
-func RunShell(cmdName string, cmdArgs []string){
+func RunShell(cmdName string, cmdArgs []string) error {
 	cmd := exec.Command(cmdName, cmdArgs...)
 	cmdReader, err := cmd.StdoutPipe()
+
+	scanner := bufio.NewScanner(cmdReader)
+	var stderr bytes.Buffer
 
 	if err!=nil {
 		fmt.Printf("Error creating StdoutPipe for Cmd. Error: %s", err)
 		os.Exit(1)
 	}
 
-	scanner := bufio.NewScanner(cmdReader)
 	go func() {
 		for scanner.Scan() {
 			fmt.Printf("%s\n", scanner.Text())
@@ -69,9 +72,15 @@ func RunShell(cmdName string, cmdArgs []string){
 		os.Exit(1)
 	}()
 
+	cmd.Stderr = &stderr
+
 	err = cmd.Wait()
+	state := cmd.ProcessState
+
 	if err!=nil {
-		fmt.Printf("Error waiting for Cmd. Error: %s", err)
-		os.Exit(1)
+		fmt.Printf(state)
+		fmt.Println(fmt.Sprint(err) + stderr.String())
 	}
+
+	return err
 }

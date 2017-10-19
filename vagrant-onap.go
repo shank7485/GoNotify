@@ -13,8 +13,10 @@ func main()  {
 
 	services_map["sdnc"] = true
 	services_map["appc"] = true
+	services_map["ccsdk"] = true
 	services_map["policy"] = true
 	services_map["portal"] = true
+	services_map["mr"] = true
 	services_map["vfc"] = true
 
 	if len(os.Args) < 2 {
@@ -24,7 +26,7 @@ func main()  {
 
 	createCommand := flag.NewFlagSet("create", flag.ExitOnError)
 	createDircPtr := createCommand.String("d", "", "Directory where the Vagrant File is locatied. (Required)")
-	createTextPtr := createCommand.String("component", "", "Component name. (Required)")
+		createTextPtr := createCommand.String("component", "", "Component name. (Required)")
 	createBuildContainerPtr := createCommand.Bool("build", false, "Option to build container")
 	createRunContainerPtr := createCommand.Bool("run", false, "Option to run container")
 
