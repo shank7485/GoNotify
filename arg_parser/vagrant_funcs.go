@@ -33,7 +33,7 @@ func DeleteONAPComponent(directory string, component string){
 
 func VagrantUp(value string){
 	cmdName := "vagrant"
-	cmdArgs := []string{"up", value}
+	cmdArgs := []string{"up", value, "--machine-readable"}
 
 	fmt.Printf("Running vagrant up %s", value)
 
@@ -45,7 +45,7 @@ func VagrantUp(value string){
 
 func VagrantDestroy(value string)  {
 	cmdName := "vagrant"
-	cmdArgs := []string{"destroy", value, "-f"}
+	cmdArgs := []string{"destroy", value, "-f", "--machine-readable"}
 
 	fmt.Printf("Running vagrant destroy %s -f", value)
 

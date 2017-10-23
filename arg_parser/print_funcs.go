@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 	"bytes"
+	"strings"
 )
 
 func PrintInvalid()  {
@@ -53,7 +54,8 @@ func RunShell(cmdName string, cmdArgs []string) error {
 
 	go func() {
 		for scanner.Scan() {
-			fmt.Printf("%s\n", scanner.Text())
+			result := strings.Split(scanner.Text(), ",")
+			fmt.Printf("%s\n", result[len(result)-1])
 		}
 	}()
 
@@ -69,16 +71,15 @@ func RunShell(cmdName string, cmdArgs []string) error {
 	go func() {
 		<-c
 		fmt.Printf("\nStopping.\n")
+		cmd.Process.Kill()
 		os.Exit(1)
 	}()
 
 	cmd.Stderr = &stderr
 
 	err = cmd.Wait()
-	state := cmd.ProcessState
 
 	if err!=nil {
-		fmt.Printf(state)
 		fmt.Println(fmt.Sprint(err) + stderr.String())
 	}
 
