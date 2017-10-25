@@ -11,6 +11,8 @@ import (
 	"strings"
 )
 
+type fn func(*bufio.Scanner)
+
 func PrintInvalid()  {
 	fmt.Println("Invalid input\n")
 	fmt.Println("Try 'vagrant-onap help' for help.")
@@ -37,10 +39,28 @@ func PrintAvailableONAPComponents()  {
 	fmt.Printf("policy\n")
 	fmt.Printf("portal\n")
 	fmt.Printf("vfc\n")
-	fmt.Printf("Example usage: vagrant-onap create d <VagrantFile path> -component=sdnc\n")
 }
 
-func RunShell(cmdName string, cmdArgs []string) error {
+func CheckRunningONAPComponents() {
+	VagrantGlobalStatus()
+}
+
+func PrintGeneric(scanner *bufio.Scanner){
+	for scanner.Scan() {
+		result := strings.Split(scanner.Text(), ",")
+		fmt.Printf("%s\n", result[len(result)-1])
+	}
+}
+
+func PrintRunningList(scanner *bufio.Scanner){
+	for scanner.Scan() {
+		result := strings.Split(scanner.Text(), ",")
+		value := result[len(result)-1]
+		fmt.Printf("%s\n", value)
+	}
+}
+
+func RunShell(cmdName string, cmdArgs []string, f fn) error {
 	cmd := exec.Command(cmdName, cmdArgs...)
 	cmdReader, err := cmd.StdoutPipe()
 
@@ -52,12 +72,7 @@ func RunShell(cmdName string, cmdArgs []string) error {
 		os.Exit(1)
 	}
 
-	go func() {
-		for scanner.Scan() {
-			result := strings.Split(scanner.Text(), ",")
-			fmt.Printf("%s\n", result[len(result)-1])
-		}
-	}()
+	go f(scanner)
 
 	err = cmd.Start()
 	if err!=nil {

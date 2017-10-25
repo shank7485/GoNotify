@@ -18,6 +18,7 @@ func main()  {
 	services_map["portal"] = true
 	services_map["mr"] = true
 	services_map["vfc"] = true
+	services_map["multicloud"] = true
 
 	if len(os.Args) < 2 {
 		funcs.PrintInvalid()
@@ -26,7 +27,7 @@ func main()  {
 
 	createCommand := flag.NewFlagSet("create", flag.ExitOnError)
 	createDircPtr := createCommand.String("d", "", "Directory where the Vagrant File is locatied. (Required)")
-		createTextPtr := createCommand.String("component", "", "Component name. (Required)")
+	createTextPtr := createCommand.String("component", "", "Component name. (Required)")
 	createBuildContainerPtr := createCommand.Bool("build", false, "Option to build container")
 	createRunContainerPtr := createCommand.Bool("run", false, "Option to run container")
 
@@ -34,12 +35,15 @@ func main()  {
 	deleteDircPtr := deleteCommand.String("d", "", "Directory where the Vagrant File is locatied. (Required)")
 	deleteTextPtr := deleteCommand.String("component", "", "Component name. (Required)")
 
+	listCommand := flag.NewFlagSet("list", flag.ExitOnError)
+	listSupported := listCommand.Bool("supported", false, "List of supported operations")
 
 	switch os.Args[1] {
 	case "help":
 		funcs.PrintBaseHelp()
 	case "list":
-		funcs.PrintAvailableONAPComponents()
+		listCommand.Parse(os.Args[2:])
+		//funcs.PrintAvailableONAPComponents()
 	case "create":
 		createCommand.Parse(os.Args[2:])
 	case "delete":
@@ -78,5 +82,14 @@ func main()  {
 		}
 
 		funcs.DeleteONAPComponent(*deleteDircPtr, *deleteTextPtr)
+	}
+
+	if listCommand.Parsed() {
+		if *listSupported == true {
+			funcs.ListONAPComponents()
+		} else {
+			funcs.CheckRunningONAPComponents()
+		}
+
 	}
 }
