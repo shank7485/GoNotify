@@ -10,9 +10,13 @@ Help:
 
 `vagrant-onap help`
 
-List of available Vagrant ONAP components:
+List currently running ONAP components:
 
 `vagrant-onap list`
+
+List all supported ONAP components in the Vagrant ONAP project:
+
+`vagrant-onap list --supported`
 
 Create component to only clone repos:
 
