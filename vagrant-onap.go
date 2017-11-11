@@ -9,16 +9,7 @@ import (
 
 func main()  {
 
-	var services_map = make(map[string]bool)
-
-	services_map["sdnc"] = true
-	services_map["appc"] = true
-	services_map["ccsdk"] = true
-	services_map["policy"] = true
-	services_map["portal"] = true
-	services_map["mr"] = true
-	services_map["vfc"] = true
-	services_map["multicloud"] = true
+	funcs.InitServiceMap()
 
 	if len(os.Args) < 2 {
 		funcs.PrintInvalid()
@@ -53,7 +44,7 @@ func main()  {
 	}
 
 	if createCommand.Parsed() {
-		if *createDircPtr == "" || *createTextPtr == "" || services_map[*createTextPtr] == false {
+		if *createDircPtr == "" || *createTextPtr == "" || funcs.Services_map[*createTextPtr] == false {
 			fmt.Printf(
 				"Vagrant Directory %s or Service %s not found\n", *createDircPtr, *createTextPtr)
 			funcs.PrintInvalid()
@@ -75,7 +66,7 @@ func main()  {
 	}
 
 	if deleteCommand.Parsed() {
-		if *deleteDircPtr == "" || *deleteTextPtr == "" || services_map[*deleteTextPtr] == false {
+		if *deleteDircPtr == "" || *deleteTextPtr == "" || funcs.Services_map[*deleteTextPtr] == false {
 			fmt.Printf(
 				"Vagrant Directory %s or Service %s not found\n", *deleteDircPtr, *deleteTextPtr)
 			funcs.PrintInvalid()

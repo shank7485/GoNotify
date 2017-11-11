@@ -13,7 +13,20 @@ import (
 
 type fn func(*bufio.Scanner)
 
-func PrintInvalid()  {
+var Services_map = make(map[string]bool)
+
+func InitServiceMap(){
+	Services_map["sdnc"] = true
+	Services_map["appc"] = true
+	Services_map["ccsdk"] = true
+	Services_map["policy"] = true
+	Services_map["portal"] = true
+	Services_map["mr"] = true
+	Services_map["vfc"] = true
+	Services_map["multicloud"] = true
+}
+
+func PrintInvalid(){
 	fmt.Println("Invalid input\n")
 	fmt.Println("Try 'vagrant-onap help' for help.")
 	os.Exit(1)
@@ -34,15 +47,9 @@ func PrintBaseHelp(){
 }
 
 func PrintAvailableONAPComponents()  {
-	fmt.Printf("sdnc\n")
-	fmt.Printf("appc\n")
-	fmt.Printf("policy\n")
-	fmt.Printf("portal\n")
-	fmt.Printf("vfc\n")
-}
-
-func CheckRunningONAPComponents() {
-	VagrantGlobalStatus()
+	for k := range Services_map {
+		fmt.Printf("%s\n", k)
+	}
 }
 
 func PrintGeneric(scanner *bufio.Scanner){
@@ -56,7 +63,11 @@ func PrintRunningList(scanner *bufio.Scanner){
 	for scanner.Scan() {
 		result := strings.Split(scanner.Text(), ",")
 		value := result[len(result)-1]
-		fmt.Printf("%s\n", value)
+		ok := Services_map[strings.TrimSpace(value)]
+
+		if ok {
+			fmt.Printf("%s\n", value)
+		}
 	}
 }
 

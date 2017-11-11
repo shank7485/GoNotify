@@ -21,7 +21,9 @@ func CreateONAPcomponent_DockerBuild(directory string, component string)  {
 }
 
 func CreateONAPComponent_DockerRun(directory string, component string)  {
+	os.Chdir(directory)
 	fmt.Printf("Doing vagrant up with DockerRun %s\n", component)
+	os.Setenv("SKIP_INSTALL", "True")
 	VagrantUp(component)
 }
 
@@ -33,6 +35,10 @@ func DeleteONAPComponent(directory string, component string){
 
 func ListONAPComponents(){
 	PrintAvailableONAPComponents()
+}
+
+func CheckRunningONAPComponents() {
+	VagrantGlobalStatus()
 }
 
 func VagrantUp(value string){
