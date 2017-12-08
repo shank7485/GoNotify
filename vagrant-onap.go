@@ -1,15 +1,15 @@
 package main
 
 import (
-	funcs "github.com/shank7485/vagrant-onap-cli/arg_parser"
-	"os"
 	"flag"
 	"fmt"
+	funcs "github.com/shank7485/vagrant-onap-cli/arg_parser"
+	"os"
 )
 
-func main()  {
+func main() {
 
-	funcs.InitServiceMap()
+	funcs.Init()
 
 	if len(os.Args) < 2 {
 		funcs.PrintInvalid()
