@@ -7,6 +7,13 @@ import (
 
 func CreateONAPComponent(directory string, component string) {
 	os.Chdir(directory)
+	runningList := VagrantRunningList(component)
+	for vm := range runningList {
+		if vm == component {
+			fmt.Printf("Component already running: %s\n", component)
+			os.Exit(3)
+		}
+	}
 	fmt.Printf("Doing vagrant up %s from directory %s\n", component, directory)
 	os.Setenv("SKIP_GET_IMAGES", "True")
 	os.Setenv("SKIP_INSTALL", "True")
@@ -76,4 +83,20 @@ func VagrantGlobalStatus() {
 	if err != nil {
 		fmt.Printf("Error in running vagrant global-status. Error: %s", err)
 	}
+}
+
+func VagrantRunningList(value string) []string {
+	cmdName := "vagrant"
+	cmdType := "global-status"
+	cmdValue  := value
+
+	fmt.Printf("Running vagrant global-status\n")
+
+	output, err := RunShellSecond(cmdName, cmdType, cmdValue, CheckRunningList, true)
+
+	if err != nil {
+		fmt.Printf("Error in running vagrant global-status. Error: %s", err)
+	}
+
+	return output
 }

@@ -99,7 +99,21 @@ func PrintRunningList(scanner *bufio.Scanner) {
 	}
 }
 
-func RunShell(cmdName string, cmdArgs []string, f fn) error {
+func CheckRunningList(scanner *bufio.Scanner, output *[]string) error {
+	for scanner.Scan() {
+		result := strings.Split(scanner.Text(), ",")
+		value := result[len(result)-1]
+		ok := Services_map[strings.TrimSpace(value)]
+
+		if ok {
+			*output = append(*output, value)
+		}
+	}
+
+	return nil
+}
+
+func RunShell(cmdName string, cmdArgs []string, outputProcessFunc fn) error {
 	cmd := exec.Command(cmdName, cmdArgs...)
 	cmdReader, err := cmd.StdoutPipe()
 
@@ -111,7 +125,7 @@ func RunShell(cmdName string, cmdArgs []string, f fn) error {
 		os.Exit(1)
 	}
 
-	go f(scanner)
+	go outputProcessFunc(scanner)
 
 	err = cmd.Start()
 	if err != nil {
@@ -138,4 +152,56 @@ func RunShell(cmdName string, cmdArgs []string, f fn) error {
 	}
 
 	return err
+}
+
+func RunShellSecond(cmdName string, cmdType, cmdValue, outputProcessFunc fn, storeOutput bool) ([]string, error) {
+
+	cmdArgs := [...]string{cmdType, cmdValue, "--machine-readable"}
+	cmd := exec.Command(cmdName, cmdArgs...)
+	cmdReader, err := cmd.StdoutPipe()
+	output := []string{}
+
+	scanner := bufio.NewScanner(cmdReader)
+	var stderr bytes.Buffer
+
+	if err != nil {
+		fmt.Printf("Error creating StdoutPipe for Cmd. Error: %s", err)
+		os.Exit(1)
+	}
+
+	if storeOutput == true {
+		go outputProcessFunc(scanner, *output)
+	} else {
+		go outputProcessFunc(scanner)
+	}
+
+	err = cmd.Start()
+	if err != nil {
+		fmt.Printf("Error starting Cmd. Error: %s", err)
+		os.Exit(1)
+	}
+
+	// To handle Control C
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		fmt.Printf("\nStopping.\n")
+		cmd.Process.Kill()
+		os.Exit(1)
+	}()
+
+	cmd.Stderr = &stderr
+
+	err = cmd.Wait()
+
+	if err != nil {
+		fmt.Println(fmt.Sprint(err) + stderr.String())
+	}
+
+	if storeOutput == true {
+		return output, err
+	} else {
+		return err
+	}
 }
